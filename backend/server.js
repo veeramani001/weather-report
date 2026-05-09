@@ -22,10 +22,17 @@ app.get('/api/weather', async (req, res) => {
     return res.status(400).json({ error: 'City parameter is required' });
   }
   
+  if (!API_KEY) {
+    console.error('WEATHER_API_KEY is not set');
+    return res.status(500).json({ error: 'API key not configured' });
+  }
+  
   try {
     const response = await fetch(`${WEATHER_API_URL}?q=${city}&appid=${API_KEY}&units=metric`);
     
     if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`Weather API error: ${response.status} - ${JSON.stringify(errorData)}`);
       return res.status(response.status).json({ error: 'City not found' });
     }
     
@@ -43,6 +50,7 @@ app.get('/api/weather', async (req, res) => {
       icon: getWeatherIcon(data.weather[0].main),
     });
   } catch (error) {
+    console.error('Fetch error:', error.message);
     res.status(500).json({ error: 'Failed to fetch weather data' });
   }
 });
