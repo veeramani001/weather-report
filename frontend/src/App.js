@@ -18,7 +18,7 @@ function App() {
   const [weather, setWeather] = useState(defaultWeather);
   const [status, setStatus] = useState('Enter a city and see the forecast.');
 
-  const handleSearch = (event) => {
+  const handleSearch = async (event) => {
     event.preventDefault();
 
     if (!query.trim()) {
@@ -26,13 +26,24 @@ function App() {
       return;
     }
 
-    setWeather({
-      ...weather,
-      city: query.trim(),
-      detail: `Weather for ${query.trim()} is bright and balanced.`,
-    });
-    setStatus(`Forecast refreshed for ${query.trim()}.`);
-    setQuery('');
+    setStatus('Loading weather data...');
+    
+    try {
+      const response = await fetch(`http://localhost:3001/api/weather?city=${encodeURIComponent(query.trim())}`);
+      
+      if (!response.ok) {
+        setStatus('City not found. Please try another.');
+        return;
+      }
+      
+      const data = await response.json();
+      setWeather(data);
+      setStatus(`Forecast updated for ${data.city}.`);
+      setQuery('');
+    } catch (error) {
+      setStatus('Error fetching weather. Please try again.');
+      console.error('Error:', error);
+    }
   };
 
   return (
