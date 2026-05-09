@@ -29,7 +29,8 @@ function App() {
     setStatus('Loading weather data...');
     
     try {
-      const response = await fetch(`http://localhost:3001/api/weather?city=${encodeURIComponent(query.trim())}`);
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${apiUrl}/api/weather?city=${encodeURIComponent(query.trim())}`);
       
       if (!response.ok) {
         setStatus('City not found. Please try another.');
